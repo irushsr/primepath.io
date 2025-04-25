@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PrimePath Solutions</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: black; color: white; overflow-x: hidden; }
+
+    canvas { position: absolute; top: 0; left: 0; }
+
+    .container, .auth-container, .dashboard-container {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding-top: 20vh;
+      display: none;
+    }
+    .container.active, .auth-container.active, .dashboard-container.active {
+      display: block;
+    }
+
+    h1 { font-size: 2.5rem; color: orange; animation: drop-in 1s ease-out, shake 0.5s ease-in-out 1s; }
+    @keyframes drop-in {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    .buttons { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .whatsapp { background-color: green; color: white; }
+    .telegram { background-color: blue; color: white; }
+    .register {
+      background-color: #1428A0;
+      color: white;
+      font-size: 1.2rem;
+      width: 420px;
+      margin-top: 20px;
+    }
+
+    .auth-container input {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem;
+      width: 80%;
+      max-width: 300px;
+    }
+    .auth-container button {
+      background-color: #ff9900;
+      color: white;
+    }
+
+    /* Dashboard styling */
+    .dashboard-container {
+      background-color: #e6f0ff;
+      color: black;
+      padding-top: 0;
+    }
+    header {
+      background-color: #004080;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      background-color: #0066cc;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 1rem;
+    }
+    nav button {
+      background-color: #ff9900;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      margin: 0.3rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    nav button:hover { background-color: #cc7a00; }
+
+    section {
+      display: none;
+      padding: 2rem;
+    }
+    section.active {
+      display: block;
+    }
+
+    .survey-list button {
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      border-radius: 4px;
+      display: block;
+    }
+
+    #board {
+      width: 400px;
+      margin: 1rem auto;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .controls button {
+      background-color: #004080;
+      color: white;
+      border: none;
+      margin: 0.2rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      background-color: #003060;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
+</head>
+<body>
+
+<canvas id="starsCanvas"></canvas>
+
+<!-- LANDING PAGE -->
+<div class="container active" id="landingPage">
+  <h1>Welcome to PrimePath Solutions</h1>
+  <p>Reliable, Fast, and Rewarding – Start Earning with PrimePath Solutions Today!</p>
+  <div class="buttons">
+    <a href="https://wa.me/254762878574" target="_blank"><button class="whatsapp">WhatsApp Us</button></a>
+    <a href="https://t.me/boost/primepathsolutions" target="_blank"><button class="telegram">Telegram Us</button></a>
+  </div>
+  <button class="register" onclick="showAuth()">Login / Signup</button>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div class="auth-container" id="authPage">
+  <h2 style="color: orange;">Create Account</h2>
+  <input type="text" placeholder="Username">
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Password">
+  <button onclick="loginUser()">Sign Up</button>
+  <br><br>
+  <button onclick="goBackToLanding()">Back to Landing Page</button>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="dashboard-container" id="dashboardPage">
+  <header><h1>Dashboard</h1></header>
+  <nav>
+    <button onclick="navigate('dashboard')">Home</button>
+    <button onclick="navigate('tasks')">Survey Tasks</button>
+    <button onclick="navigate('chess')">Play Chess</button>
+    <button onclick="navigate('affiliates')">Affiliates</button>
+    <button onclick="navigate('forum')">Forum</button>
+    <button onclick="navigate('vip')">VIP Access</button>
+    <button onclick="navigate('finances')">Finances</button>
+    <button onclick="logout()">Back to Signup</button>
+  </nav>
+
+  <section id="dashboard" class="active">
+    <h2>Welcome to the Dashboard</h2>
+    <p>Select an option above to continue.</p>
+  </section>
+  <section id="tasks">
+    <h2>Survey Tasks</h2>
+    <div class="survey-list">
+      <button onclick="loadSurvey('survey1')">Survey 1: Easy</button>
+      <button onclick="loadSurvey('survey2')">Survey 2: Easy</button>
+      <button onclick="loadSurvey('survey3')">Survey 3: Medium</button>
+      <button onclick="loadSurvey('survey4')">Survey 4: Medium</button>
+      <button onclick="loadSurvey('survey5')">Survey 5: Hard</button>
+    </div>
+    <div id="surveyContainer" style="margin-top: 2rem;"></div>
+  </section>
+  <section id="chess">
+    <h2 style="text-align:center;">Chess Game</h2>
+    <div class="controls">
+      <button onclick="setMode('human')">1v1 Mode</button>
+      <button onclick="setMode('ai')">Play vs AI</button>
+      <button onclick="resetGame()">Reset Game</button>
+    </div>
+    <div id="board"></div>
+  </section>
+  <section id="affiliates"><h2>Affiliates</h2><p>This is where affiliate info goes.</p></section>
+  <section id="forum"><h2>Social Forum</h2><p>This is where users interact.</p></section>
+  <section id="vip"><h2>VIP Access</h2><p>Only VIP members can see this.</p></section>
+  <section id="finances"><h2>Finances</h2><p>This is the financial overview.</p></section>
+</div>
+
+<!-- JS SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.0/chess.min.js"></script>
+<script src="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stockfish@16.1.0/src/stockfish.wasm.js"></script>
+<script>
+  // Background animation
+  const canvas = document.getElementById("starsCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  let stars = [];
+  for (let i = 0; i < 100; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    });
+  }
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fill();
+      star.x += star.dx;
+      star.y += star.dy;
+      if (star.x < 0 || star.x > canvas.width) star.dx *= -1;
+      if (star.y < 0 || star.y > canvas.height) star.dy *= -1;
+    });
+    requestAnimationFrame(animateStars);
+  }
+  animateStars();
+
+  function showAuth() {
+    document.getElementById("landingPage").classList.remove("active");
+    document.getElementById("authPage").classList.add("active");
+  }
+
+  function goBackToLanding() {
+    document.getElementById("authPage").classList.remove("active");
+    document.getElementById("landingPage").classList.add("active");
+  }
+
+  function loginUser() {
+    document.getElementById("authPage").classList.remove("active");
+    document.getElementById("dashboardPage").classList.add("active");
+  }
+
+  function logout() {
+    document.getElementById("dashboardPage").classList.remove("active");
+    document.getElementById("authPage").classList.add("active");
+  }
+
+  function navigate(pageId) {
+    document.querySelectorAll('.dashboard-container section').forEach(s => s.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  function loadSurvey(id) {
+    const surveys = {
+      survey1: `<p><strong>Do you like ice cream?</strong><br><input type="text"></p>`,
+      survey2: `<p><strong>Do you enjoy outdoor activities?</strong><br><input type="text"></p>`,
+      survey3: `<p><strong>Have you ever traveled abroad?</strong><br><input type="text"></p>`,
+      survey4: `<p><strong>Is technology making life better?</strong><br><input type="text"></p>`,
+      survey5: `<p><strong>Should education be free?</strong><br><input type="text"></p>`
+    };
+    document.getElementById('surveyContainer').innerHTML = surveys[id];
+  }
+
+  // Chess game logic
+  let board, game = new Chess();
+  let mode = 'human';
+  let engine = Stockfish();
+  let isAIThinking = false;
+
+  function setMode(newMode) {
+    mode = newMode;
+    resetGame();
+  }
+
+  function resetGame() {
+    game.reset();
+    board.position(game.fen());
+  }
+
+  function makeAIMove() {
+    if (game.game_over()) return;
+    isAIThinking = true;
+    engine.postMessage("position fen " + game.fen());
+    engine.postMessage("go depth 15");
+  }
+
+  engine.onmessage = function (event) {
+    if (typeof event === 'object') event = event.data;
+    if (event.startsWith("bestmove")) {
+      const move = event.split(" ")[1];
+      game.move({ from: move.substring(0, 2), to: move.substring(2, 4), promotion: 'q' });
+      board.position(game.fen());
+      isAIThinking = false;
+    }
+  };
+
+  function onDragStart(source, piece) {
+    if (game.game_over()) return false;
+    if (mode === 'ai' && piece.search(/^b/) !== -1) return false;
+    if (mode === 'human') return game.turn() === piece[0];
+  }
+
+  function onDrop(source, target) {
+    let move = game.move({ from: source, to: target, promotion: 'q' });
+    if (move === null) return 'snapback';
+    board.position(game.fen());
+    if (mode === 'ai' && !isAIThinking) setTimeout(makeAIMove, 250);
+  }
+
+  window.onload = function () {
+    board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      onDragStart: onDragStart,
+      onDrop: onDrop
+    });
+  };
+</script>
+</body>
+</html>
+
+
+
